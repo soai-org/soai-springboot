@@ -22,6 +22,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+    maven { url "https://www.dcm4che.org/maven2/" } // dcm4che 라이브러리 다운로드용
 }
 
 dependencies {
@@ -45,10 +46,9 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'                // JUnit 런처
 
     // ===== DICOM =====
-    implementation 'org.dcm4che:dcm4che-core:5.34.1'                            // dcm4che core
-    implementation 'org.dcm4che:dcm4che-net:5.34.1'                             // dcm4che DICOM-orthanc 네트워킹
-    implementation 'org.dcm4che:dcm4che-imageio:5.34.1'                         // dcm4che png, jpg 이미지 처리
-
+    implementation 'org.dcm4che:dcm4che-core:5.25.0'                            // dcm4che core
+    implementation 'org.dcm4che:dcm4che-net:5.25.0'                             // dcm4che DICOM-orthanc 네트워킹
+    implementation 'org.dcm4che:dcm4che-imageio:5.25.0'                         // dcm4che png, jpg 이미지 처리
 
     tasks.named('test') {
         useJUnitPlatform()
