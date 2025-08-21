@@ -49,8 +49,8 @@ dependencies {
     implementation 'org.dcm4che:dcm4che-core:5.25.0'                            // dcm4che core
     implementation 'org.dcm4che:dcm4che-net:5.25.0'                             // dcm4che DICOM-orthanc 네트워킹
     implementation 'org.dcm4che:dcm4che-imageio:5.25.0'                         // dcm4che png, jpg 이미지 처리
+}
 
-    tasks.named('test') {
-        useJUnitPlatform()
-    }
+tasks.named('test') {
+    useJUnitPlatform()
 }
