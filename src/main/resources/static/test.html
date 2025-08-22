@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>DashBoardController 테스트</title>
+</head>
+<body>
+<h1>환자 검색 테스트</h1>
+
+<input type="text" id="patientName" placeholder="환자 이름 입력">
+<button onclick="searchPatient()">검색</button>
+
+<p>결과: <span id="result"></span></p>
+
+<script>
+    async function searchPatient() {
+        const name = document.getElementById('patientName').value;
+        const resultSpan = document.getElementById('result');
+
+        try {
+            const response = await fetch('http://localhost:8080/api/dashboard/toolsfindbyname', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.text();
+            resultSpan.innerText = data;
+        } catch (error) {
+            console.error('Error:', error);
+            resultSpan.innerText = '오류 발생';
+        }
+    }
+</script>
+</body>
+</html>
