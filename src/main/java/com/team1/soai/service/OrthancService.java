@@ -1,52 +1,61 @@
 package com.team1.soai.service;
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class OrthancService {
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+    private final String orthancEndpoint;
+    private final String orthancID;
+    private final String orthancPassword;
 
-    @Value("${orthanc.endpoint}")
-    private String orthancEndpoint;
+    public OrthancService(
+            RestTemplate restTemplate,
+            @Value("${orthanc.endpoint}") String orthancEndpoint,
+            @Value("${orthanc.id}") String orthancID,
+            @Value("${orthanc.password}") String orthancPassword) {
+        this.restTemplate = restTemplate;
+        this.orthancEndpoint = orthancEndpoint;
+        this.orthancID = orthancID;
+        this.orthancPassword = orthancPassword;
+    }
 
-    @Value("${orthanc.id}")
-    private String orthancID;
-    @Value("${orthanc.password}")
-    private String orthancPassword;
+    private String getAuthHeader() {
+        String auth = orthancID + ":" + orthancPassword;
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+        return "Basic " + new String(encodedAuth);
+    }
 
-    public String toolsFind(String level, Map<String, Object> query) {
-        String url = orthancEndpoint + "/tools/find";
-
+    public List<String> toolsFind(String level, Map<String, Object> query) {
+        String url = orthancEndpoint + "/tools/find"; 
         Map<String, Object> body = new HashMap<>();
         body.put("Level", level);
         body.put("Query", query);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
 
-        String auth = orthancID + ":" + orthancPassword;
-        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
-        String authHeader = "Basic " + new String(encodedAuth);
-        headers.set("Authorization", authHeader);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers); 
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
         return response.getBody();
+    }
+
+    public String getDetail(String levelPath, String id) {
+        String url = orthancEndpoint + "/" + levelPath + "/" + id;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     }
 }

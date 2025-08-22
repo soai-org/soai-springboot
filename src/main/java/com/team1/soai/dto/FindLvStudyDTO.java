@@ -1,20 +1,17 @@
 package com.team1.soai.dto;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
 
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FindLvPatientDTO {
+public class FindLvStudyDTO {
 
     @JsonProperty("ID")
     private String id;
-
-    @JsonProperty("IsProtected")
-    private Boolean isProtected;
 
     @JsonProperty("IsStable")
     private Boolean isStable;
@@ -25,14 +22,36 @@ public class FindLvPatientDTO {
     @JsonProperty("LastUpdate")
     private String lastUpdate;
 
-    @JsonProperty("MainDicomTags")
-    private PatientDicomTags mainDicomTags;
+    @JsonProperty("ParentPatient")
+    private String parentPatient;
 
-    @JsonProperty("Studies")
-    private List<String> studies;
+    @JsonProperty("PatientMainDicomTags")
+    private PatientDicomTags patientMainDicomTags;
+
+    @JsonProperty("MainDicomTags")
+    private StudyDicomTags mainDicomTags;
+
+    @JsonProperty("Series")
+    private List<String> series;
 
     @JsonProperty("Type")
     private String type;
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class StudyDicomTags {
+        @JsonProperty("StudyDate")
+        private String studyDate;
+
+        @JsonProperty("StudyDescription")
+        private String studyDescription;
+
+        @JsonProperty("StudyInstanceUID")
+        private String studyInstanceUID;
+
+        @JsonProperty("StudyTime")
+        private String studyTime;
+    }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
