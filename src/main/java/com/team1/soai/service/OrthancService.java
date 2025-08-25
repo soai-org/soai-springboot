@@ -58,4 +58,23 @@ public class OrthancService {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     }
+
+    public List<String> toolsFindFull(String level, Map<String, Object> query) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", level);
+        body.put("Query", query);
+        body.put("Full", true);
+        body.put("Expand", true);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
+
+
 }

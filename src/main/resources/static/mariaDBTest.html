@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>MariaDB User 테스트</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h2>사용자 조회 테스트</h2>
+
+<div id="controls">
+    <label>정렬 기준:
+        <select id="orderSelect">
+            <option value="userId">아이디</option>
+            <option value="userName">이름</option>
+        </select>
+    </label>
+    <label>오름차순/내림차순:
+        <select id="ascSelect">
+            <option value="true">오름차순</option>
+            <option value="false">내림차순</option>
+        </select>
+    </label>
+    <button type="button" onclick="fetchUsers()">조회</button>
+</div>
+
+<table id="resultTable">
+    <thead>
+    <tr>
+        <th>아이디</th>
+        <th>이름</th>
+        <th>역할</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+    function fetchUsers() {
+        const order = document.getElementById("orderSelect").value;
+        const isASC = document.getElementById("ascSelect").value === 'true';
+
+        fetch("/api/user-management/list", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ offset: 0, limit: 10, order: order, isASC: isASC })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const users = Array.isArray(data) ? data : (data.users || []);
+
+            const tbody = document.querySelector("#resultTable tbody");
+            tbody.innerHTML = "";
+            users.forEach(user => {
+                const row = `<tr>
+                    <td>${user.userId}</td>
+                    <td>${user.userName}</td>
+                    <td>${user.userRole}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        })
+        .catch(err => {
+            alert("조회 중 오류 발생: " + err);
+        });
+    }
+</script>
+</body>
+</html>
