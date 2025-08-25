@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebMVCExampleConfigurer implements WebMvcConfigurer {
+public class WebMVCConfig implements WebMvcConfigurer {
     @Value("${react.endpoint}")
     private String reactEndpoint;
 
