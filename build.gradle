@@ -49,8 +49,14 @@ dependencies {
     implementation 'org.dcm4che:dcm4che-core:5.25.0'                            // dcm4che core
     implementation 'org.dcm4che:dcm4che-net:5.25.0'                             // dcm4che DICOM-orthanc 네트워킹
     implementation 'org.dcm4che:dcm4che-imageio:5.25.0'                         // dcm4che png, jpg 이미지 처리
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'com.auth0:java-jwt:4.2.0'
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 }
