@@ -5,6 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <title>AI 분석 페이지</title>
+<link rel="icon" href="${pageContext.request.contextPath}/tracking.png" type="image/x-icon">
 <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     .image-container { display: flex; gap: 20px; margin-top: 20px; }
@@ -55,7 +56,7 @@
 
 <!-- Captioning 페이지로 이동 버튼 -->
 <div class="btn-container">
-    <form action="${pageContext.request.contextPath}/captioning" method="post">
+    <form action="/x-ray/captioning" method="post">
         <input type="hidden" name="patientId" value="${patientId}" />
         <input type="hidden" name="studyId" value="${studyId}" />
         <input type="hidden" name="seriesId" value="${seriesId}" />

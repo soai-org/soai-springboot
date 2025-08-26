@@ -122,7 +122,7 @@
             </c:if>
         </div>
         <div class="back-link">
-            <a href="/">대화 화면으로 돌아가기</a>
+            <a href="/llm/chat">대화 화면으로 돌아가기</a>
         </div>
     </div>
 </body>

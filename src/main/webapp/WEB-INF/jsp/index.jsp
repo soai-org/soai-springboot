@@ -148,7 +148,7 @@
         <div class="chat-header">
             의사 LLM
             <div class="header-link">
-                <a href="/history">상담 기록 보기</a>
+                <a href="/llm/history">상담 기록 보기</a>
             </div>
         </div>
         <div class="chat-body">
@@ -169,7 +169,7 @@
                 <input type="submit" value="전송">
             </form>
             <div class="history-link">
-                <a href="/history">상담 기록 보기</a>
+                <a href="/llm/history">상담 기록 보기</a>
             </div>
         </div>
     </div>
