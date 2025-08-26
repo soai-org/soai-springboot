@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.team1.soai.service.PatientService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 @Controller
+@RequestMapping("/x-ray")
 public class PatientsController {
     @Autowired
     private PatientService patientService;
@@ -28,7 +30,7 @@ public class PatientsController {
         return "dashboard";
     }
 
-    // 이름으로 환자 검색
+    // 이름으로 환자 검색 (depreciated)
     @PostMapping("/dashboard")
     public String searchPatient(@RequestParam("name") String patientName, Model model) {
         try {
