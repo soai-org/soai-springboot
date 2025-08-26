@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 public class UserManagementService {
     private final UserService userService;
 
-    public List<UserSelectListDTO> getUsersForManagement(int offset, int limit, String order, boolean isASC) {
+    public List<UserSelectListDTO> getUsersForManagement(int offset, int limit, String order, Boolean isASC) {
         List<UserDTO> userDTOList = userService.selectUserList(offset, limit, order, isASC);
+
+        String finalOrder = (order == null || order.isEmpty()) ? "userId" : order;
+        boolean finalIsASC = (isASC == null) ? false : isASC;
 
         return userDTOList.stream()
                 .map(user -> new UserSelectListDTO(user.getUserId(), user.getUserName(), user.getUserRole()))

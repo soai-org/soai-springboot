@@ -2,7 +2,6 @@ package com.team1.soai.config;
 
 import com.team1.soai.JwtProvider;
 import com.team1.soai.mapper.UserMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
