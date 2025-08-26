@@ -35,6 +35,11 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.1' // MyBatis 연동
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'                          // MariaDB 드라이버
 
+    // JSP 관련
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'javax.servlet:jstl'
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+
     // ===== 개발 편의 =====
     compileOnly 'org.projectlombok:lombok'                                      // Lombok (코드 간결화)
     annotationProcessor 'org.projectlombok:lombok'
