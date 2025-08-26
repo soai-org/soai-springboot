@@ -1,7 +1,7 @@
 package com.team1.soai.service;
 
 import com.team1.soai.JwtProvider;
-import com.team1.soai.config.SecurityExampleConfig;
+import com.team1.soai.config.SecurityConfig;
 import com.team1.soai.dto.LoginRequestDTO;
 import com.team1.soai.dto.UserDTO;
 import com.team1.soai.mapper.UserMapper;

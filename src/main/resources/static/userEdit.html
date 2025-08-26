@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+</head>
+<body>
+<h1>Edit User</h1>
+<form action="/users/edit" method="post">
+    <input type="hidden" name="userId" th:value="${user.userId}">
+    <label>Name: <input type="text" name="userName" th:value="${user.userName}"></label><br>
+    <label>Password: <input type="password" name="userPassword" th:value="${user.userPassword}"></label><br>
+    <label>Role: <input type="text" name="userRole" th:value="${user.userRole}"></label><br>
+    <button type="submit">Save</button>
+</form>
+<a href="/users/list">Back to List</a>
+</body>
+</html>

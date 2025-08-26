@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.team1.soai.mapper.UserManagementMapper">
+    <select id="selectUserList" resultType="com.team1.soai.dto.UserDTO">
+        SELECT user_id, user_name, user_role, created_at, updated_at
+        FROM USER
+        <choose>
+            <when test="order eq 'user_name'">
+                ORDER BY user_name
+            </when>
+            <otherwise>
+                ORDER BY user_id
+            </otherwise>
+        </choose>
+        <if test="isASC">
+            ASC
+        </if>
+        <if test="!isASC">
+            DESC
+        </if>
+    </select>
+
+    <select id="selectUserById" resultType="com.team1.soai.dto.UserDTO">
+        SELECT user_id, user_password, user_name, user_role, created_at, updated_at
+        FROM USER
+        WHERE user_id = #{id}
+    </select>
+
+    <insert id="insertUser" parameterType="com.team1.soai.dto.UserDTO">
+        INSERT INTO USER(user_id, user_password, user_name, user_role)
+        VALUES (#{userId}, #{userPassword}, #{userName}, #{userRole})
+    </insert>
+
+    <update id="modifyUser" parameterType="com.team1.soai.dto.UserModifyDTO">
+        UPDATE USER
+        SET user_name = #{userName}, user_role = #{userRole}, user_password = #{userPassword}
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteUser">
+        delete
+        FROM USER
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>

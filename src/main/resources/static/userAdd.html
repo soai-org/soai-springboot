@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add User</title>
+</head>
+<body>
+<h1>Add New User</h1>
+<form action="/users/add" method="post">
+    <label>User ID: <input type="text" name="userId" required></label><br>
+    <label>Name: <input type="text" name="userName" required></label><br>
+    <label>Password: <input type="password" name="userPassword" required></label><br>
+    <label>Role: <input type="text" name="userRole" required></label><br>
+    <button type="submit">Add User</button>
+</form>
+<a href="/users/list">Back to List</a>
+</body>
+</html>

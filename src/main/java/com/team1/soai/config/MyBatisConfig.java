@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @MapperScan(basePackages = "com.team1.soai.mapper")
-public class MyBatisExampleConfig {
+public class MyBatisConfig {
     @Value("${mybatis.dto-link}")
     private String dtoLink;
 
