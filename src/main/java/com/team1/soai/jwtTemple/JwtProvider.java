@@ -1,7 +1,8 @@
-package com.team1.soai;
+package com.team1.soai.jwtTemple;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.team1.soai.dto.UserDTO;
 import com.team1.soai.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +39,12 @@ public class JwtProvider {
     }
 
     //JWT 토큰 생성
-    public String generateJwtToken(String userId, String userPassword){
+    public String generateJwtToken(String userId){
         Date tokenExpiration = new Date(System.currentTimeMillis() + (EXPIRE_TIME));
-
         String jwtToken = JWT.create()
                 .withSubject(userId) // token이름
                 .withExpiresAt(tokenExpiration)
-                .withClaim("userPassword", userPassword)
+                .withClaim("userId", userId)  // 👈 검증할 claim
                 .sign(this.getSign());
 
         return jwtToken;
@@ -52,34 +52,35 @@ public class JwtProvider {
 
     /**
      * 토큰 검증
-     *  - 토큰에서 가져온 email 정보와 DB의 유저 정보 일치하는지 확인
+     *  - 토큰에서 가져온 userId 정보와 DB의 유저 정보 일치하는지 확인
      *  - 토큰 만료 시간이 지났는지 확인
      * @param jwtToken
-     * @return 유저 객체 반환
+     * @return boolean
      */
-    public UserDTO validToken(String jwtToken){
+    public boolean validToken(String jwtToken){
         try {
-            String userId = JWT.require(this.getSign()).build().verify(jwtToken).getClaim("userId").asString();
+            //토큰 서명 및 기본 검증
+            DecodedJWT decodedJWT = JWT.require(this.getSign()).build().verify(jwtToken);
 
-            if(userId == null){
-                return null;
+            //token 에서 userId 추출 및 검증
+            String userId = decodedJWT.getClaim("userId").asString();
+
+            UserDTO userDto = userMapper.getUserInfo(userId);
+            if(userDto == null){
+                return false;
             }
 
             //시간 만료 확인
             Date expiresAt = JWT.require(this.getSign()).acceptExpiresAt(EXPIRE_TIME).build().verify(jwtToken).getExpiresAt();
 
             if (!this.validExpiredTime(expiresAt)) {
-                // 만료시간이 지났다.
-                return null;
+                return false;
             }
-
-            UserDTO tokenUser = userMapper.getUserInfo(userId);
-            return tokenUser;
+            return true;
 
         }catch (Exception e){
             e.printStackTrace();
-            return null;
-
+            return false;
         }
     }
 
@@ -89,6 +90,19 @@ public class JwtProvider {
         LocalDateTime localTimeExpired = expiresAt.toInstant().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         return LocalDateTime.now().isBefore(localTimeExpired);
 
+    }
+
+    // 토큰에서 getUserId 꺼내는 메서드
+    public String getUserId(String token){
+        try {
+            return JWT.require(this.getSign())
+                    .build()
+                    .verify(token)
+                    .getClaim("userId")
+                    .asString();
+        }catch (Exception e){
+            return null;
+        }
     }
 
 }

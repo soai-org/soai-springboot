@@ -1,6 +1,7 @@
 package com.team1.soai.config;
 
-import com.team1.soai.JwtProvider;
+import com.team1.soai.jwtTemple.JwtAuthenticationFilter;
+import com.team1.soai.jwtTemple.JwtProvider;
 import com.team1.soai.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -8,20 +9,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityExampleConfig  extends WebSecurityConfigurerAdapter {
 
     private final UserMapper userMapper;
-    public SecurityExampleConfig(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    //JwtAuthenticationFilter를 SecurityConfig에서 필터 체인에 등록
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
-                .anyRequest().permitAll();
+        http.csrf().disable().authorizeRequests().antMatchers("/user/login")
+                .permitAll().anyRequest().authenticated().and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
@@ -33,5 +35,6 @@ public class SecurityExampleConfig  extends WebSecurityConfigurerAdapter {
     public JwtProvider jwtTokenProvider(){
         return new JwtProvider(userMapper);
     }
+
 
 }
