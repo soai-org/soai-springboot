@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Test</title>
+</head>
+<body>
+<h1>대시보드 검색 테스트</h1>
+
+<h2>이름 검색 (Full=false)</h2>
+<form id="toolsFindForm">
+    <label for="name">이름:</label>
+    <input type="text" id="name" name="name" required>
+    <select id="level" name="level">
+        <option value="Patient">Patient</option>
+        <option value="Study">Study</option>
+        <option value="Series">Series</option>
+        <option value="Instance">Instance</option>
+    </select>
+    <button type="submit">검색</button>
+</form>
+
+<h2>이름 검색 (Full=true)</h2>
+<form id="toolsFindFullForm">
+    <label for="nameFull">이름:</label>
+    <input type="text" id="nameFull" name="nameFull" required>
+    <select id="levelFull" name="levelFull">
+        <option value="Patient">Patient</option>
+        <option value="Study">Study</option>
+        <option value="Series">Series</option>
+        <option value="Instance">Instance</option>
+    </select>
+    <button type="submit">Full 검색</button>
+</form>
+
+<pre id="result"></pre>
+
+<script>
+    const resultDiv = document.getElementById('result');
+
+    document.getElementById('toolsFindForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const level = document.getElementById('level').value;
+
+        try {
+            const response = await fetch('/api/dashboard/toolsfind', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, level})
+            });
+            const data = await response.json();
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+            resultDiv.textContent = err.message;
+        }
+    });
+
+    document.getElementById('toolsFindFullForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nameFull').value;
+        const level = document.getElementById('levelFull').value;
+
+        try {
+            const response = await fetch('/api/dashboard/toolsfindfull', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, level})
+            });
+            const data = await response.json();
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+            resultDiv.textContent = err.message;
+        }
+    });
+</script>
+
+<h2>Patient 이름 검색 + 하위 Study/Instance 포함</h2>
+<form id="fullChildrenForm">
+    <label for="nameChildren">이름:</label>
+    <input type="text" id="nameChildren" name="nameChildren" required>
+    <button type="submit">검색</button>
+</form>
+
+<pre id="resultChildren"></pre>
+
+<script>
+    document.getElementById('fullChildrenForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nameChildren').value;
+
+        try {
+            const response = await fetch('/api/dashboard/toolsfindfullchildren', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            const data = await response.json();
+            document.getElementById('resultChildren').textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+            document.getElementById('resultChildren').textContent = err.message;
+        }
+    });
+</script>
+
+</body>
+</html>
