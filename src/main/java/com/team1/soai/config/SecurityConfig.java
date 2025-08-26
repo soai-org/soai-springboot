@@ -13,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig  extends WebSecurityConfigurerAdapter {
 
     private final UserMapper userMapper;
-    public SecurityExampleConfig(UserMapper userMapper) {
+    public SecurityConfig(UserMapper userMapper) {
         this.userMapper = userMapper;
     }
 
