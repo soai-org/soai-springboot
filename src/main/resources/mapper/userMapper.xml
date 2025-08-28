@@ -5,12 +5,12 @@
 <mapper namespace="com.team1.soai.mapper.UserMapper">
     <select id="getUserInfo" resultType="com.team1.soai.dto.UserDTO">
         SELECT
-             user_id
-            , user_name
-            , user_password
-            , user_role
-            , created_at
-            , updated_at
+        user_id
+        , user_name
+        , user_password
+        , user_role
+        , created_at
+        , updated_at
         FROM USER
         WHERE user_id = #{userId}
     </select>
