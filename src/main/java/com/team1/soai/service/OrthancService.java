@@ -1,10 +1,13 @@
 package com.team1.soai.service;
 import lombok.extern.slf4j.Slf4j;
+import org.dcm4che3.data.Attributes;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
+import org.dcm4che3.io.DicomInputStream;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -124,5 +127,19 @@ public class OrthancService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
         ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
         return response.getBody();
+    }
+
+    public byte[] getDicomFilByByte(String instanceUuid) throws Exception{
+        String url = orthancEndpoint + "/instances/" + instanceUuid + "/file";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject(url, byte[].class);
+
+        return restTemplate.getForObject(url, byte[].class);
+    }
+
+    public byte[] getThumbnailImageAsBytes(String instanceUuid) {
+        String url = orthancEndpoint + "/instances/" + instanceUuid + "/preview";
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(url, byte[].class);
     }
 }

@@ -35,7 +35,7 @@ public class DashBoardService {
     }
 
     /** 이름 검색 (Full=true) */
-    public List<?> toolsFindFull(String name, Level level) throws JsonProcessingException {
+    public List<?> toolsFindExpand(String name, Level level) throws JsonProcessingException {
         Map<String, Object> query = Map.of("PatientName", name);
         // Full=true 호출, Orthanc가 이미 상세 JSON 반환
         List<?> fullList = orthancService.toolsFindFull(level.getValue(), query);

@@ -22,6 +22,11 @@ public class DashBoardController {
 
     private final DashBoardService dashBoardService;
 
+    /**
+     * 이름으로 목록검색 API
+     * @param request 이름
+     * @return List<String> 환자 UUID목록 반환
+     */
     @PostMapping("/toolsfind")
     public ResponseEntity<?> toolsFind(@RequestBody Map<String, String> request) {
         String name = request.get("name");
@@ -47,8 +52,13 @@ public class DashBoardController {
         }
     }
 
-    @PostMapping("/toolsfindfull")
-    public ResponseEntity<?> toolsFindFull(@RequestBody Map<String, String> request) {
+    /**
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/toolsfindexpand")
+    public ResponseEntity<?> toolsFindExpand(@RequestBody Map<String, String> request) {
         String name = request.get("name");
         String levelStr = request.get("level");
 
@@ -64,43 +74,12 @@ public class DashBoardController {
         }
 
         try {
-            Object result = dashBoardService.toolsFindFull(name, level);
+            Object result = dashBoardService.toolsFindExpand(name, level);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to fetch data from Orthanc", "details", e.getMessage()));
         }
     }
-
-    @PostMapping("/patient-studies")
-    public ResponseEntity<?> getPatientStudies(@RequestBody Map<String, Object> request) {
-        String patientId = (String) request.get("patientId");
-        Integer page = (Integer) request.get("page");
-        Integer size = (Integer) request.get("size");
-        String sortBy = (String) request.get("sortBy");
-        String sortOrder = (String) request.get("sortOrder");
-
-        if (patientId == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "patientId is required"));
-        }
-
-        // 기본값 설정
-        if (page == null) page = 0;
-        if (size == null) size = 10;
-        if (sortBy == null) sortBy = "StudyDate";
-        if (sortOrder == null) sortOrder = "DESC";
-
-        try {
-            PageResult<StudyCardDTO> result = dashBoardService.getPatientStudiesWithPagination(
-                patientId, page, size, sortBy, sortOrder
-            );
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(Map.of("error", "Failed to fetch patient studies", "details", e.getMessage()));
-        }
-    }
-
-
 
 }

@@ -9,5 +9,5 @@
         FROM PATIENT_LATEST_DATA
         WHERE latest_study_uuid = #{studyUuid}
     </select>
-    
+
 </mapper>
