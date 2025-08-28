@@ -63,7 +63,7 @@ public class OrthancService {
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     }
 
-    public List<String> toolsFindFull(String level, Map<String, Object> query) {
+    public List<String> toolsFindExpand(String level, Map<String, Object> query) {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", level);
@@ -98,7 +98,7 @@ public class OrthancService {
         return response.getBody();
     }
 
-    public List<Map<String, Object>> toolsFindStudyWithParams(int limit, int since, String parentPatient) {
+    public List<Map<String, Object>> toolsFindStudyForPaginationByPatientUuid(int limit, int since, String parentPatient) {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", "Study");

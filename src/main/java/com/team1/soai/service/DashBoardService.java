@@ -34,12 +34,12 @@ public class DashBoardService {
         return fetchDetails(uuids, level);
     }
 
-    /** 이름 검색 (Full=true) */
+    /** 이름 검색 (Expand=true) */
     public List<?> toolsFindExpand(String name, Level level) throws JsonProcessingException {
         Map<String, Object> query = Map.of("PatientName", name);
-        // Full=true 호출, Orthanc가 이미 상세 JSON 반환
-        List<?> fullList = orthancService.toolsFindFull(level.getValue(), query);
-        return fullList; // fetchDetails 생략
+        // Expanded=true 호출, Orthanc가 이미 상세 JSON 반환
+        List<?> expandedList = orthancService.toolsFindExpand(level.getValue(), query);
+        return expandedList; // fetchDetails 생략
     }
 
     private List<?> fetchDetails(List<String> uuids, Level level) throws JsonProcessingException {
@@ -124,7 +124,7 @@ public class DashBoardService {
 
     public List<StudyCardDTO> getStudyCardList(int limit, int since, String parentPatient) {
         try {
-            List<Map<String, Object>> studyList = orthancService.toolsFindStudyWithParams(limit, since, parentPatient);
+            List<Map<String, Object>> studyList = orthancService.toolsFindStudyForPaginationByPatientUuid(limit, since, parentPatient);
             
             List<StudyCardDTO> result = new ArrayList<>();
             
