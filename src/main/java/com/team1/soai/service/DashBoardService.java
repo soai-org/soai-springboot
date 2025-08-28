@@ -27,7 +27,7 @@ public class DashBoardService {
     private final ObjectMapper objectMapper;
     private final UuidMappingMapper uuidMappingMapper;
 
-    /** 이름 검색 (Full=false) */
+    /** 이름 검색 (Expand=false) */
     public List<?> toolsFind(String name, Level level) throws JsonProcessingException {
         Map<String, Object> query = Map.of("PatientName", name);
         List<String> uuids = orthancService.toolsFind(level.getValue(), query);
@@ -40,6 +40,14 @@ public class DashBoardService {
         // Expanded=true 호출, Orthanc가 이미 상세 JSON 반환
         List<?> expandedList = orthancService.toolsFindExpand(level.getValue(), query);
         return expandedList; // fetchDetails 생략
+    }
+
+    /** Patient uuid로 study 목록 반환 */
+    public List<?> toolsFindByPatientId(String name, Level level, String uuid) throws JsonProcessingException {
+        Map<String, Object> query = Map.of("PatientName", name);
+        List<String> List = orthancService.toolsFindByParentPatient(level.getValue(), query, uuid);
+
+        return fetchDetails(List, Level.Study);
     }
 
     private List<?> fetchDetails(List<String> uuids, Level level) throws JsonProcessingException {
@@ -138,14 +146,15 @@ public class DashBoardService {
                 String patientName = requestedTags.get("PatientName") != null ? requestedTags.get("PatientName").toString() : "";
                 String patientSex = requestedTags.get("PatientSex") != null ? requestedTags.get("PatientSex").toString() : "";
                 
-                String thumbnailInstanceUuid = uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid);
-                
                 StudyCardDTO studyCard = new StudyCardDTO();
                 studyCard.setStudyUuid(studyUuid);
                 studyCard.setStudyDate(studyDate);
                 studyCard.setStudyTime(studyTime);
                 studyCard.setStudyDescription(studyDescription);
-                studyCard.setThumbnailInstanceUuid(thumbnailInstanceUuid);
+                studyCard.setThumbnailImage(
+                        orthancService.getThumbnailImageAsBytes(
+                                uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid)
+                        ));
                 studyCard.setPatientName(patientName);
                 studyCard.setPatientSex(patientSex);
                 
