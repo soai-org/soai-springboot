@@ -1,13 +1,10 @@
 package com.team1.soai.service;
 import lombok.extern.slf4j.Slf4j;
-import org.dcm4che3.data.Attributes;
 import org.springframework.beans.factory.annotation.Value;
-import org.dcm4che3.io.DicomInputStream;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -145,6 +142,23 @@ public class OrthancService {
         return response.getBody();
     }
 
+    public List<String> toolsFindSeriesByStudyUuid(String level, Map<String, Object> query, String ParentStudy) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", level);
+        body.put("Query", query);
+        body.put("PatrentStudy", ParentStudy);
+        body.put("ResponseContent", List.of("Children"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
+
     public byte[] getDicomFilByByte(String instanceUuid) throws Exception{
         String url = orthancEndpoint + "/instances/" + instanceUuid + "/file";
         RestTemplate restTemplate = new RestTemplate();
@@ -153,9 +167,14 @@ public class OrthancService {
         return restTemplate.getForObject(url, byte[].class);
     }
 
-    public byte[] getThumbnailImageAsBytes(String instanceUuid) {
+    public String getThumbnailImageAsBase64(String instanceUuid) {
         String url = orthancEndpoint + "/instances/" + instanceUuid + "/preview";
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(url, byte[].class);
+
+        ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
+        byte[] imageBytes = response.getBody();
+        String contentType = response.getHeaders().getContentType().toString();
+
+        return "data:" + contentType + ";base64," + Base64.getEncoder().encodeToString(imageBytes);
     }
 }
