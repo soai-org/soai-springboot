@@ -22,11 +22,6 @@ public class DashBoardController {
 
     private final DashBoardService dashBoardService;
 
-    /**
-     * 이름으로 목록검색 API
-     * @param request 이름
-     * @return List<String> 환자 UUID목록 반환
-     */
     @PostMapping("/toolsfind")
     public ResponseEntity<?> toolsFind(@RequestBody Map<String, String> request) {
         String name = request.get("name");
