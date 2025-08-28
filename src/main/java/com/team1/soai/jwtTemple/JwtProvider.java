@@ -2,6 +2,7 @@ package com.team1.soai.jwtTemple;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.team1.soai.dto.UserDTO;
 import com.team1.soai.mapper.UserMapper;
@@ -24,8 +25,6 @@ public class JwtProvider {
 
     private final UserMapper userMapper;
 
-    static Long EXPIRE_TIME = 60L * 60L * 1000L; // 1시간
-
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -38,13 +37,16 @@ public class JwtProvider {
         this.secretKey = Base64.getEncoder().encodeToString(this.secretKey.getBytes());
     }
 
+
+
     //JWT 토큰 생성
     public String generateJwtToken(String userId){
-        Date tokenExpiration = new Date(System.currentTimeMillis() + (EXPIRE_TIME));
+        // 1시간
+        Date tokenExpiration = new Date(System.currentTimeMillis() + 2000L * 60 * 60);
         String jwtToken = JWT.create()
                 .withSubject(userId) // token이름
                 .withExpiresAt(tokenExpiration)
-                .withClaim("userId", userId)  // 👈 검증할 claim
+                .withClaim("userId", userId)  // 검증할 claim
                 .sign(this.getSign());
 
         return jwtToken;
@@ -59,7 +61,6 @@ public class JwtProvider {
      */
     public boolean validToken(String jwtToken){
         try {
-            //토큰 서명 및 기본 검증
             DecodedJWT decodedJWT = JWT.require(this.getSign()).build().verify(jwtToken);
 
             //token 에서 userId 추출 및 검증
@@ -71,14 +72,13 @@ public class JwtProvider {
             }
 
             //시간 만료 확인
-            Date expiresAt = JWT.require(this.getSign()).acceptExpiresAt(EXPIRE_TIME).build().verify(jwtToken).getExpiresAt();
-
+            Date expiresAt = decodedJWT.getExpiresAt();
             if (!this.validExpiredTime(expiresAt)) {
                 return false;
             }
             return true;
 
-        }catch (Exception e){
+        }catch (JWTVerificationException e){
             e.printStackTrace();
             return false;
         }
