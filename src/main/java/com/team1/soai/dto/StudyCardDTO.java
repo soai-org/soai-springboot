@@ -13,7 +13,7 @@ public class StudyCardDTO {
     private String studyTime;
     private String studyDescription;
 
-    private byte[] thumbnailImage;
+    private String thumbnailImage;
     private String patientId;
     private String patientName;
     private String patientSex;

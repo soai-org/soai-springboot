@@ -2,7 +2,6 @@ package com.team1.soai.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team1.soai.dto.DicomTag;
 import com.team1.soai.dto.FindLvPatientDTO;
 import com.team1.soai.dto.FindLvStudyDTO;
 import com.team1.soai.dto.FindLvSeriesDTO;
@@ -11,12 +10,9 @@ import com.team1.soai.dto.Level;
 import com.team1.soai.mapper.UuidMappingMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import com.team1.soai.dto.PageResult;
 import com.team1.soai.dto.StudyCardDTO;
 
 @Service
@@ -152,7 +148,7 @@ public class DashBoardService {
                 studyCard.setStudyTime(studyTime);
                 studyCard.setStudyDescription(studyDescription);
                 studyCard.setThumbnailImage(
-                        orthancService.getThumbnailImageAsBytes(
+                        orthancService.getThumbnailImageAsBase64(
                                 uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid)
                         ));
                 studyCard.setPatientName(patientName);

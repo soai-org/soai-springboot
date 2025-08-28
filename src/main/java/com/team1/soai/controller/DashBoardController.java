@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.team1.soai.service.DashBoardService;
 
 import java.util.Map;
-import com.team1.soai.dto.PageResult;
-import com.team1.soai.dto.StudyCardDTO;
-
 
 @Slf4j
 @RestController
