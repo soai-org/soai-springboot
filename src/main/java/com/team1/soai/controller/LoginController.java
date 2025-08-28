@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
 
 
 @Slf4j
@@ -26,22 +30,29 @@ class LoginController {
      *  로그인 성공 시 토큰 발급
      * */
     @PostMapping("/user/login")
-    public String login(@RequestBody LoginRequestDTO loginDto, HttpServletResponse resp) {
-        UserDTO userDTO = new UserDTO();
+    public ResponseEntity<String> login(@RequestBody LoginRequestDTO loginDto, HttpServletRequest request) {
+        try {
+            HttpSession session = request.getSession();
+            UserDTO userDTO = new UserDTO();
 
-        try{
-            return loginService.login(loginDto, resp);
-        }catch (Exception e){
-            e.printStackTrace();
-            return null;
+            ResponseEntity token = loginService.login(loginDto);
+
+            if(token != null){
+                userDTO = loginService.getUserInfo(loginDto);
+                userDTO.setUserPassword("");
+                session.setAttribute("userInfo", userDTO);
+            }
+            return token;
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
         }
     }
 
     @GetMapping("/user/access/test")
     public String test(@AuthenticationPrincipal UserDTO user){
-        if(user != null){
-            return user.getUserId() + "님의 api 접근.";
-        }
-        return  "error zz";
+        return user.getUserId() + "님의 api 접근.";
     }
 }
