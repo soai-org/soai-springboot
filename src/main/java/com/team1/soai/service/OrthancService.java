@@ -54,7 +54,7 @@ public class OrthancService {
         return response.getBody();
     }
 
-    public List<String> toolsFindByPatentPatient(String level, Map<String, Object> query, String parentPatient) {
+    public List<String> toolsFindByParentPatient(String level, Map<String, Object> query, String parentPatient) {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", level);

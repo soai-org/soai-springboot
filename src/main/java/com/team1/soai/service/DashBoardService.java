@@ -45,7 +45,7 @@ public class DashBoardService {
     /** Patient uuid로 study 목록 반환 */
     public List<?> toolsFindByPatientId(String name, Level level, String uuid) throws JsonProcessingException {
         Map<String, Object> query = Map.of("PatientName", name);
-        List<String> List = orthancService.toolsFindByPatentPatient(level.getValue(), query, uuid);
+        List<String> List = orthancService.toolsFindByParentPatient(level.getValue(), query, uuid);
 
         return fetchDetails(List, Level.Study);
     }

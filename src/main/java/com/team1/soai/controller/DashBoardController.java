@@ -85,7 +85,7 @@ public class DashBoardController {
      * @param request
      * @return
      */
-    @PostMapping("/getstudycards")
+    @PostMapping("/studycards")
     public ResponseEntity<?> getStudies(@RequestBody Map<String, String> request) {
         try {
             String patientUuid = request.get("patientUuid");
