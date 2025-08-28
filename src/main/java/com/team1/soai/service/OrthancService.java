@@ -1,6 +1,7 @@
 package com.team1.soai.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -76,5 +77,52 @@ public class OrthancService {
         return response.getBody();
     }
 
+    public List<Map<String, Object>> toolsFindRequestedTagsByParentPatient(String level, String PatientUuid) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", level);
+        body.put("Query", Map.of());
+        body.put("ParentPatient", PatientUuid);
+        body.put("ResponseContent", List.of());
+        body.put("RequestedTags", List.of("StudyDate"));
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
+
+    public List<Map<String, Object>> toolsFindStudyWithParams(int limit, int since, String parentPatient) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", "Study");
+        body.put("Limit", limit);
+        body.put("Since", since);
+        body.put("Query", Map.of());
+        body.put("ParentPatient", parentPatient);
+        body.put("ResponseContent", List.of());
+        body.put("RequestedTags", List.of(
+            "StudyDate",
+            "StudyTime", 
+            "StudyDescription",
+            "PatientName",
+            "PatientSex"
+        ));
+        body.put("OrderBy", List.of(Map.of(
+            "Type", "DicomTags",
+            "Key", "StudyDate", 
+            "Direction", "DESC"
+        )));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
 }

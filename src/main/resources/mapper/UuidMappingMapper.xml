@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.team1.soai.mapper.UuidMappingMapper">
+    
+    <select id="getLatestInstanceUuidByStudyUuid" resultType="String">
+        SELECT COALESCE(latest_instance_uuid, '') as latest_instance_uuid
+        FROM PATIENT_LATEST_DATA
+        WHERE latest_study_uuid = #{studyUuid}
+    </select>
+    
+</mapper>

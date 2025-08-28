@@ -8,13 +8,14 @@ import com.team1.soai.dto.FindLvStudyDTO;
 import com.team1.soai.dto.FindLvSeriesDTO;
 import com.team1.soai.dto.FindLvInstanceDTO;
 import com.team1.soai.dto.Level;
+import com.team1.soai.mapper.UuidMappingMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import com.team1.soai.dto.PageResult;
 import com.team1.soai.dto.StudyCardDTO;
 
@@ -24,6 +25,7 @@ public class DashBoardService {
 
     private final OrthancService orthancService;
     private final ObjectMapper objectMapper;
+    private final UuidMappingMapper uuidMappingMapper;
 
     /** 이름 검색 (Full=false) */
     public List<?> toolsFind(String name, Level level) throws JsonProcessingException {
@@ -66,70 +68,94 @@ public class DashBoardService {
         return result;
     }
 
-    /** Patient ID로 Study 목록을 페이지네이션하여 반환 */
-    public PageResult<StudyCardDTO> getPatientStudiesWithPagination(String patientId, int page, int size, String sortBy, String sortOrder) throws JsonProcessingException {
-        // 1. Patient ID로 해당 Patient의 Study UUID 목록 조회
-        Map<String, Object> query = Map.of("PatientID", patientId);
-        List<String> studyUuids = orthancService.toolsFind("Study", query);
-        
-        // 2. 전체 개수 계산
-        int totalCount = studyUuids.size();
-        
-        // 3. 페이지네이션 적용
-        int startIndex = page * size;
-        int endIndex = Math.min(startIndex + size, totalCount);
-        
-        if (startIndex >= totalCount) {
-            return new PageResult<>(List.of(), page, size, totalCount);
+    public List<StudyCardDTO> studiesPagination(String level, String PatientUuid, int size, int page) {
+        List<Map<String, Object>> fullList = orthancService.toolsFindRequestedTagsByParentPatient(level, PatientUuid);
+
+        fullList.sort((a, b) -> {
+            Map<String, String> tagsA = (Map<String, String>) a.get("RequestedTags");
+            Map<String, String> tagsB = (Map<String, String>) b.get("RequestedTags");
+
+            String dateA = tagsA.get("StudyDate");
+            String dateB = tagsB.get("StudyDate");
+
+            return dateB.compareTo(dateA); // DESC 정렬
+        });
+
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, fullList.size());
+
+        if (fromIndex >= fullList.size()) {
+            return Collections.emptyList(); // 페이지 범위 초과 시 빈 리스트
         }
-        
-        // 4. 해당 페이지의 Study UUID들만 추출
-        List<String> pageUuids = studyUuids.subList(startIndex, endIndex);
-        
-        // 5. 각 Study의 상세 정보 조회하여 StudyCardDTO로 변환
-        List<StudyCardDTO> studies = new ArrayList<>();
-        for (String uuid : pageUuids) {
-            String json = orthancService.getDetail("studies", uuid);
-            Map<String, Object> studyData = objectMapper.readValue(json, Map.class);
-            
-            StudyCardDTO studyCard = new StudyCardDTO();
-            studyCard.setStudyUuid(uuid);
-            
-            // MainDicomTags에서 정보 추출
-            Map<String, Object> mainTags = (Map<String, Object>) studyData.get("MainDicomTags");
-            if (mainTags != null) {
-                studyCard.setStudyDate((String) mainTags.get("StudyDate"));
-                studyCard.setStudyDescription((String) mainTags.get("StudyDescription"));
-                studyCard.setModality((String) mainTags.get("Modality"));
+
+        List<Map<String, Object>> paginatedList = fullList.subList(fromIndex, toIndex);
+
+        List<StudyCardDTO> result = new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        // 4. 각 Study 상세 조회 후 DTO 생성
+        for (Map<String, Object> item : paginatedList) {
+            String id = (String) item.get("ID");
+
+            // 상세 API 호출
+            String detailJson = orthancService.getDetail("studies", id);
+
+            // JSON → Map 변환
+            Map<String, Object> detailMap;
+            try {
+                detailMap = mapper.readValue(detailJson, new TypeReference<Map<String, Object>>() {});
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to parse study detail JSON", e);
             }
-            
-            // Patient 정보 추출
-            Map<String, Object> patientMainTags = (Map<String, Object>) studyData.get("PatientMainDicomTags");
-            if (patientMainTags != null) {
-                studyCard.setPatientId((String) patientMainTags.get("PatientID"));
-                studyCard.setPatientName((String) patientMainTags.get("PatientName"));
-            }
-            
-            // Series/Instance 개수 추출
-            List<String> seriesUuids = (List<String>) studyData.get("Series");
-            studyCard.setSeriesCount(seriesUuids != null ? seriesUuids.size() : 0);
-            
-            // 실제로는 PATIENT_LATEST_DATA 테이블에서 thumbnailInstanceUuid를 가져와야 함
-            // 현재는 임시로 첫 번째 Series의 첫 번째 Instance를 사용
-            if (seriesUuids != null && !seriesUuids.isEmpty()) {
-                String firstSeriesJson = orthancService.getDetail("series", seriesUuids.get(0));
-                Map<String, Object> firstSeriesData = objectMapper.readValue(firstSeriesJson, Map.class);
-                List<String> instanceUuids = (List<String>) firstSeriesData.get("Instances");
-                if (instanceUuids != null && !instanceUuids.isEmpty()) {
-                    studyCard.setThumbnailInstanceUuid(instanceUuids.get(0));
-                }
-                studyCard.setInstanceCount(instanceUuids != null ? instanceUuids.size() : 0);
-            }
-            
-            studies.add(studyCard);
+
+            // 필드 추출
+            String studyDate = ((Map<String, Object>) item.get("RequestedTags")).get("StudyDate").toString();
+            String patientName = ((Map<String, Object>) ((Map<String, Object>) detailMap.get("PatientMainDicomTags"))).get("PatientName").toString();
+            String studyDescription = ((Map<String, Object>) ((Map<String, Object>) detailMap.get("MainDicomTags"))).get("StudyDescription").toString();
+
+            // DTO 생성 후 리스트에 추가
+            result.add(new StudyCardDTO(id, studyDate, patientName, studyDescription));
         }
-        
-        return new PageResult<>(studies, page, size, totalCount);
+
+        // 5. 최종 반환
+        return result;
     }
 
+    public List<StudyCardDTO> getStudyCardList(int limit, int since, String parentPatient) {
+        try {
+            List<Map<String, Object>> studyList = orthancService.toolsFindStudyWithParams(limit, since, parentPatient);
+            
+            List<StudyCardDTO> result = new ArrayList<>();
+            
+            for (Map<String, Object> study : studyList) {
+                String studyUuid = (String) study.get("ID");
+                
+                Map<String, Object> requestedTags = (Map<String, Object>) study.get("RequestedTags");
+                String studyDate = requestedTags.get("StudyDate") != null ? requestedTags.get("StudyDate").toString() : "";
+                String studyTime = requestedTags.get("StudyTime") != null ? requestedTags.get("StudyTime").toString() : "";
+                String studyDescription = requestedTags.get("StudyDescription") != null ? requestedTags.get("StudyDescription").toString() : "";
+                String patientName = requestedTags.get("PatientName") != null ? requestedTags.get("PatientName").toString() : "";
+                String patientSex = requestedTags.get("PatientSex") != null ? requestedTags.get("PatientSex").toString() : "";
+                
+                String thumbnailInstanceUuid = uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid);
+                
+                StudyCardDTO studyCard = new StudyCardDTO();
+                studyCard.setStudyUuid(studyUuid);
+                studyCard.setStudyDate(studyDate);
+                studyCard.setStudyTime(studyTime);
+                studyCard.setStudyDescription(studyDescription);
+                studyCard.setThumbnailInstanceUuid(thumbnailInstanceUuid);
+                studyCard.setPatientName(patientName);
+                studyCard.setPatientSex(patientSex);
+                
+                result.add(studyCard);
+            }
+            
+            return result;
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get study card list", e);
+        }
+    }
 }
