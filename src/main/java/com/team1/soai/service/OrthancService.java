@@ -54,6 +54,22 @@ public class OrthancService {
         return response.getBody();
     }
 
+    public List<String> toolsFindByPatentPatient(String level, Map<String, Object> query, String parentPatient) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", level);
+        body.put("Query", query);
+        body.put("ParentPatient", parentPatient);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
+
     public String getDetail(String levelPath, String id) {
         String url = orthancEndpoint + "/" + levelPath + "/" + id;
         HttpHeaders headers = new HttpHeaders();

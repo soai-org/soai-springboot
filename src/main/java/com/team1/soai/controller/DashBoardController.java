@@ -2,11 +2,9 @@ package com.team1.soai.controller;
 import com.team1.soai.dto.Level;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.team1.soai.service.DashBoardService;
 
 import java.util.Map;
@@ -81,5 +79,40 @@ public class DashBoardController {
                     .body(Map.of("error", "Failed to fetch data from Orthanc", "details", e.getMessage()));
         }
     }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/getstudycards")
+    public ResponseEntity<?> getStudies(@RequestBody Map<String, String> request) {
+        try {
+            String patientUuid = request.get("patientUuid");
+            String sizeStr = request.get("size");
+            String pageStr = request.get("page");
+
+            if (patientUuid == null || sizeStr == null || pageStr == null) {
+                return ResponseEntity.badRequest().body("Missing required parameters: patientUuid, size, or page");
+            }
+
+            int size;
+            int page;
+            try {
+                size = Integer.parseInt(sizeStr);
+                page = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Invalid number format for size or page");
+            }
+
+            Object result = dashBoardService.studiesPagination(Level.Study.getValue(), patientUuid, size, page);
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
 
 }

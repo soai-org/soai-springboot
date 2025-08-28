@@ -13,7 +13,7 @@ public class StudyCardDTO {
     private String studyTime;
     private String studyDescription;
 
-    private String thumbnailInstanceUuid; // 썸네일용 Instance UUID
+    private byte[] thumbnailImage;
     private String patientId;
     private String patientName;
     private String patientSex;
