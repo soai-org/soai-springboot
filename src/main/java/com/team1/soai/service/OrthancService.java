@@ -146,7 +146,7 @@ public class OrthancService {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", Level.Series);
-        body.put("Query", "");
+        body.put("Query", Map.of());
         body.put("ParentStudy", ParentStudy);
         body.put("ResponseContent", List.of("Children"));
 
