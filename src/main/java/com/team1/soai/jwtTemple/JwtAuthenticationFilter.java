@@ -2,6 +2,7 @@ package com.team1.soai.jwtTemple;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.team1.soai.dto.UserDTO;
+import com.team1.soai.exception.JwtException;
 import com.team1.soai.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        try {
             UserDTO userDTO = new UserDTO();
 
             //Authorization 헤더에서 JWT추출
@@ -57,17 +57,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     //시큐리티 컨텍스트 등록
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }else{
-                    throw new RemoteException("토큰 인증 실패.");
+                    throw new JwtException("토큰 인증 실패.");
                 }
             }
-
             filterChain.doFilter(request, response);
-        }catch (Exception e) {
-            // 토큰 만료나 변조 시
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("토큰이 유효하지않습니다." + response.getStatus());
-        }
-
 
     }
 

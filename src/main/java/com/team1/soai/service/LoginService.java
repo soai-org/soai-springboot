@@ -21,7 +21,7 @@ public class LoginService {
     private final JwtProvider jwtProvider;
 
     // 로그인 성공시 토큰을 발급한다.
-    public ResponseEntity login(LoginRequestDTO loginDTO) throws Exception{
+    public ResponseEntity login(LoginRequestDTO loginDTO) throws IllegalArgumentException{
 
         String userId = loginDTO.getUserId();
         String rawUserPwd = loginDTO.getUserPassword();
@@ -29,12 +29,12 @@ public class LoginService {
 
         if(userDTO == null) {
             // 아이디 없음
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("존재하지 않는 아이디입니다.");
         }
         if(!passwordEncoder.matches(rawUserPwd, userDTO.getUserPassword())) {
             // 비밀번호 불일치
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("비밀번호가 올바르지 않습니다.");
         }
         // 로그인 성공
