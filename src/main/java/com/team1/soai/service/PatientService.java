@@ -1,5 +1,6 @@
 package com.team1.soai.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,10 +14,10 @@ import java.util.List;
 
 @Service
 public class PatientService {
-
-    private final String ORTHANC_URL = "http://127.0.0.1:8042";
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${orthanc.endpoint}")
+    private String ORTHANC_URL;
 
     // 모든 환자 UUID 가져오기
     public List<String> getAllPatients() throws Exception {

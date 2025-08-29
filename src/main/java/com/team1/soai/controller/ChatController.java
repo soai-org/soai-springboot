@@ -25,11 +25,6 @@ public class ChatController {
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
-    @GetMapping("/chat")  // 루트 경로
-    public ResponseEntity<?> home() {
-        return ResponseEntity.ok().body(Map.of("message","Chat-bot is still running."));
-    }
-
     @PostMapping("/ask")
     public ResponseEntity<?> sendMessage(@RequestBody Map<String, String> request) {
         String message = request.get("message");
