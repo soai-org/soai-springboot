@@ -163,7 +163,7 @@ public class OrthancService {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", Level.Instance);
-        body.put("Query", "");
+        body.put("Query", Map.of());
         body.put("ParentSeries", ParentSeries);
 
         HttpHeaders headers = new HttpHeaders();
