@@ -185,9 +185,14 @@ public class OrthancService {
 
     public String getThumbnailImageAsBase64(String instanceUuid) {
         String url = orthancEndpoint + "/instances/" + instanceUuid + "/preview";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(url, byte[].class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
         byte[] imageBytes = response.getBody();
         String contentType = response.getHeaders().getContentType().toString();
 
