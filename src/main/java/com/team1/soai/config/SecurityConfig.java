@@ -21,10 +21,13 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
 
     //JwtAuthenticationFilter를 SecurityConfig에서 필터 체인에 등록
     @Override protected void configure(HttpSecurity http) throws Exception {
+
         http.csrf().disable().authorizeRequests()
-                .antMatchers("/user/login") .permitAll()
+                .antMatchers("/user/login").permitAll()
                 .anyRequest().authenticated().and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.cors(); // CORS커스텀
     }
 
     @Bean
