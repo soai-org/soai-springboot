@@ -17,15 +17,16 @@ import java.util.Map;
 public class CaptioningService {
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${fastapi.url:http://localhost:8000}")
+    @Value("${fastapi.url}")
     private String fastApiUrl;
 
-    public String getCaptioning(String studyId) {
+    public String getCaptioning(String instanceUuid, String description) {
         try {
             String url = fastApiUrl + "/image-meta/diagnosis";
             // 요청 Body
             Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("study", studyId);
+            requestBody.put("instanceUUID", instanceUuid);
+            requestBody.put("description", description);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
