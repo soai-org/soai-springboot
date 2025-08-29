@@ -4,6 +4,8 @@ import com.team1.soai.service.ViewerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +25,12 @@ public class ViewerController {
     @PostMapping(
             value = "/dicomfile",
             produces = "application/dicom")
-    public @ResponseBody byte[] getDicomData(@RequestParam String InstanceUuid){
+    public ResponseEntity<byte[]> getDicomData(@RequestParam String InstanceUuid){
         try {
-            return viewerService.getDicomData(InstanceUuid);
+            return ResponseEntity.ok(viewerService.getDicomData(InstanceUuid));
         }
         catch (Exception e) {
-            return new byte[0];
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
         }
     }
 
