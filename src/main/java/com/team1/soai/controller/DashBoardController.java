@@ -86,23 +86,23 @@ public class DashBoardController {
     public ResponseEntity<?> getStudies(@RequestBody Map<String, String> request) {
         try {
             String patientUuid = request.get("patientUuid");
-            String sizeStr = request.get("size");
-            String pageStr = request.get("page");
+            String limitStr = request.get("limit");
+            String sinceStr = request.get("since");
 
-            if (patientUuid == null || sizeStr == null || pageStr == null) {
-                return ResponseEntity.badRequest().body("Missing required parameters: patientUuid, size, or page");
+            if (patientUuid == null || limitStr == null || sinceStr == null) {
+                return ResponseEntity.badRequest().body("Missing required parameters: patientUuid, limit, or since");
             }
 
-            int size;
-            int page;
+            int limit;
+            int since;
             try {
-                size = Integer.parseInt(sizeStr);
-                page = Integer.parseInt(pageStr);
+                limit = Integer.parseInt(limitStr);
+                since = Integer.parseInt(sinceStr);
             } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body("Invalid number format for size or page");
+                return ResponseEntity.badRequest().body("Invalid number format for limit or since");
             }
 
-            Object result = dashBoardService.studiesPagination(Level.Study.getValue(), patientUuid, size, page);
+            Object result = dashBoardService.getStudyCardList(limit, since, patientUuid);
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {

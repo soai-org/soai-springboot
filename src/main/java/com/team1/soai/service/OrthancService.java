@@ -1,4 +1,5 @@
 package com.team1.soai.service;
+import com.team1.soai.dto.Level;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -81,7 +82,6 @@ public class OrthancService {
         Map<String, Object> body = new HashMap<>();
         body.put("Level", level);
         body.put("Query", query);
-        body.put("Full", true);
         body.put("Expand", true);
 
         HttpHeaders headers = new HttpHeaders();
@@ -142,13 +142,29 @@ public class OrthancService {
         return response.getBody();
     }
 
-    public List<String> toolsFindSeriesByStudyUuid(String level, Map<String, Object> query, String ParentStudy) {
+    public List<Map<String, Object>> toolsFindSeriesByStudyUuid(String ParentStudy) {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
-        body.put("Level", level);
-        body.put("Query", query);
-        body.put("PatrentStudy", ParentStudy);
+        body.put("Level", Level.Series);
+        body.put("Query", "");
+        body.put("ParentStudy", ParentStudy);
         body.put("ResponseContent", List.of("Children"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthHeader());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
+        return response.getBody();
+    }
+
+    public List<String> toolsFindInstanceBySeriesUuid(String ParentSeries) {
+        String url = orthancEndpoint + "/tools/find";
+        Map<String, Object> body = new HashMap<>();
+        body.put("Level", Level.Instance);
+        body.put("Query", "");
+        body.put("ParentSeries", ParentSeries);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -162,9 +178,9 @@ public class OrthancService {
     public byte[] getDicomFilByByte(String instanceUuid) throws Exception{
         String url = orthancEndpoint + "/instances/" + instanceUuid + "/file";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getForObject(url, byte[].class);
+        byte[] dicomBytes = restTemplate.getForObject(url, byte[].class);
 
-        return restTemplate.getForObject(url, byte[].class);
+        return dicomBytes;
     }
 
     public String getThumbnailImageAsBase64(String instanceUuid) {

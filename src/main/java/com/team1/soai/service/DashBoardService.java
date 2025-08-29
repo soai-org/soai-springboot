@@ -46,6 +46,13 @@ public class DashBoardService {
         return fetchDetails(List, Level.Study);
     }
 
+    /**
+     * uuid 입력시 상세목록 반환코드
+     * @param uuids
+     * @param level
+     * @return
+     * @throws JsonProcessingException
+     */
     private List<?> fetchDetails(List<String> uuids, Level level) throws JsonProcessingException {
         List<Object> result = new ArrayList<>();
         for (String id : uuids) {
@@ -72,6 +79,14 @@ public class DashBoardService {
         return result;
     }
 
+    /**
+     * 스터디 페이지네이션 후 getDetail해서 상세값 받아오는 코드(구버전)
+     * @param level
+     * @param PatientUuid
+     * @param size
+     * @param page
+     * @return List<StudyCardDTO>
+     */
     public List<StudyCardDTO> studiesPagination(String level, String PatientUuid, int size, int page) {
         List<Map<String, Object>> fullList = orthancService.toolsFindRequestedTagsByParentPatient(level, PatientUuid);
 
@@ -126,6 +141,13 @@ public class DashBoardService {
         return result;
     }
 
+    /**
+     * Study List Pagination으로 받아오는 코드
+     * @param limit
+     * @param since
+     * @param parentPatient
+     * @return
+     */
     public List<StudyCardDTO> getStudyCardList(int limit, int since, String parentPatient) {
         try {
             List<Map<String, Object>> studyList = orthancService.toolsFindStudyForPaginationByPatientUuid(limit, since, parentPatient);

@@ -1,4 +1,1 @@
 rootProject.name = 'human'
-include 'src:test:com.team1.soai.service'
-include 'src:test'
-include 'src:test:java:untitled'
