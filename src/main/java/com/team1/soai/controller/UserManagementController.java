@@ -40,14 +40,24 @@ public class UserManagementController {
     // 사용자 수정
     @PutMapping("/edit")
     public String editUser(@RequestBody UserModifyDTO user) {
-        userManagementService.modifyUser(user);
-        return "success";
+        try {
+            userManagementService.modifyUser(user);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to edit user: " + e.getMessage());
+        }
     }
 
     // 사용자 삭제
     @DeleteMapping("/delete/{userId}")
     public String deleteUser(@PathVariable String userId) {
-        userManagementService.deleteUser(userId);
-        return "success";
+        try {
+            userManagementService.deleteUser(userId);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete user: " + e.getMessage());
+        }
     }
 }
