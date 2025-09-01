@@ -15,6 +15,7 @@ public class SeriesCardDTO {
     private MainDicomTags mainDicomTags;
     private String thumbnailImage;
 
+    @Data
     @AllArgsConstructor
     public static class MainDicomTags {
         private String modality;
