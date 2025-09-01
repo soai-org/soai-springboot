@@ -44,7 +44,7 @@ class LoginController {
             }
             return token;
 
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
