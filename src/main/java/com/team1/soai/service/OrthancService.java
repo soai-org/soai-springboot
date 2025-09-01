@@ -1,4 +1,7 @@
 package com.team1.soai.service;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team1.soai.dto.Level;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +50,8 @@ public class OrthancService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAuthHeader());
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers); 
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
         ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
         return response.getBody();
     }
@@ -142,19 +146,23 @@ public class OrthancService {
         return response.getBody();
     }
 
-    public List<Map<String, Object>> toolsFindSeriesByStudyUuid(String ParentStudy) {
+    public List<Map<String, Object>> toolsFindSeriesByStudyUuid(String ParentStudy) throws JsonProcessingException {
         String url = orthancEndpoint + "/tools/find";
         Map<String, Object> body = new HashMap<>();
         body.put("Level", Level.Series);
         body.put("Query", Map.of());
         body.put("ParentStudy", ParentStudy);
-        body.put("ResponseContent", List.of("Children"));
+        body.put("ResponseContent", List.of("Children", "MainDicomTags"));
+
+        ObjectMapper mapper = new ObjectMapper();
+        log.info("Request body: {}", mapper.writeValueAsString(body));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAuthHeader());
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
         ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
         return response.getBody();
     }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,9 +26,10 @@ public class ViewerController {
     @PostMapping(
             value = "/dicomfile",
             produces = "application/dicom")
-    public ResponseEntity<byte[]> getDicomData(@RequestParam String InstanceUuid){
+    public ResponseEntity<byte[]> getDicomData(@RequestBody Map<String, String> request){
         try {
-            return ResponseEntity.ok(viewerService.getDicomData(InstanceUuid));
+            String instanceUuid = request.get("instanceUuid");
+            return ResponseEntity.ok(viewerService.getDicomData(instanceUuid));
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
@@ -35,8 +37,9 @@ public class ViewerController {
     }
 
     @PostMapping("/serieslist")
-    public ResponseEntity<?> getSeriesList(@RequestParam String studyUuid) {
+    public ResponseEntity<?> getSeriesList(@RequestBody Map<String, String> request) {
         try{
+            String studyUuid = request.get("studyUuid");
             Object result = viewerService.getSeriesList(studyUuid);
 
             return ResponseEntity.ok(result);
