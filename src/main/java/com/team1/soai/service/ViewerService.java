@@ -27,28 +27,33 @@ public class ViewerService {
         List<SeriesCardDTO> result = new ArrayList<>();
 
         // Map → DTO 변환
-        for (Map<String, Object> seriesMap : SeriesInstanceMapList) {
-            String id = (String) seriesMap.get("ID");
-            List<String> instances = (List<String>) seriesMap.get("Instances");
-            Map<String, Object> mainDicomTagsMap = (Map<String, Object>) seriesMap.get("MainDicomTags");
+        try {
+            for (Map<String, Object> seriesMap : SeriesInstanceMapList) {
+                String id = (String) seriesMap.get("ID");
+                List<String> instances = (List<String>) seriesMap.get("Instances");
+                Map<String, Object> mainDicomTagsMap = (Map<String, Object>) seriesMap.get("MainDicomTags");
 
-            SeriesCardDTO.MainDicomTags mainDicomTags = new SeriesCardDTO.MainDicomTags(
-                    (String) mainDicomTagsMap.get("Modality"),
-                    (String) mainDicomTagsMap.get("SeriesInstanceUID")
-            );
+                SeriesCardDTO.MainDicomTags mainDicomTags = new SeriesCardDTO.MainDicomTags(
+                        (String) mainDicomTagsMap.get("Modality"),
+                        (String) mainDicomTagsMap.get("SeriesInstanceUID")
+                );
 
-            SeriesCardDTO dto = new SeriesCardDTO();
-            dto.setId(id);
-            dto.setInstances(instances);
-            dto.setMainDicomTags(mainDicomTags);
-            dto.setThumbnailImage(
-                    orthancService.getThumbnailImageAsBase64(
-                            instances.get(0)
-                    ));
+                SeriesCardDTO dto = new SeriesCardDTO();
+                dto.setId(id);
+                dto.setInstances(instances);
+                dto.setMainDicomTags(mainDicomTags);
+                dto.setThumbnailImage(
+                        orthancService.getThumbnailImageAsBase64(
+                                instances.get(0)
+                        ));
 
-            result.add(dto);
+                result.add(dto);
+            }
+
+            return result;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw e;
         }
-
-        return result;
     }
 }
