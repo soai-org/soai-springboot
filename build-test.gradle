@@ -1,37 +1,33 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.7'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'war'
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
-group = 'humanPrj'
+group = 'springChatbot'
 version = '0.0.1-SNAPSHOT'
-
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-    maven { url "https://www.dcm4che.org/maven2/" } // dcm4che 라이브러리 다운로드용
+    mavenCentral()
 }
 
 dependencies {
-// ===== Spring Boot 기본 =====
-    implementation 'org.springframework.boot:spring-boot-starter-web'           // REST API / MVC
-    implementation 'org.springframework.boot:spring-boot-starter-security'      // 보안 (인증/인가)
-    implementation 'org.springframework.boot:spring-boot-starter-validation'    // DTO 검증
+    // Spring Boot 웹
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // ===== MyBatis + DB =====
+    // Lombok
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.1' // MyBatis 연동
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'                          // MariaDB 드라이버
 
@@ -44,11 +40,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'     // 기본 테스트 프레임워크
     testImplementation 'org.springframework.security:spring-security-test'     // Security 관련 테스트
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'                // JUnit 런처
+    testImplementation 'com.h2database:h2'                                      // 테스트용 인메모리 데이터베이스
 
-    // ===== DICOM =====
-    implementation 'org.dcm4che:dcm4che-core:5.25.0'                            // dcm4che core
-    implementation 'org.dcm4che:dcm4che-net:5.25.0'                             // dcm4che DICOM-orthanc 네트워킹
-    implementation 'org.dcm4che:dcm4che-imageio:5.25.0'                         // dcm4che png, jpg 이미지 처리
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -56,11 +51,14 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     implementation 'com.auth0:java-jwt:4.2.0'
 
-    // web-soket -> web-soket플러그인 설치 필요
+    // web-soket
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-    tasks.named('test') {
-        useJUnitPlatform()
-    }
+    // 테스트
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
