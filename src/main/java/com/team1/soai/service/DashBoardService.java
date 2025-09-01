@@ -9,12 +9,15 @@ import com.team1.soai.dto.FindLvInstanceDTO;
 import com.team1.soai.dto.Level;
 import com.team1.soai.mapper.UuidMappingMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import com.team1.soai.dto.StudyCardDTO;
+import org.springframework.web.client.HttpClientErrorException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashBoardService {
@@ -36,14 +39,6 @@ public class DashBoardService {
         // Expanded=true 호출, Orthanc가 이미 상세 JSON 반환
         List<?> expandedList = orthancService.toolsFindExpand(level.getValue(), query);
         return expandedList; // fetchDetails 생략
-    }
-
-    /** Patient uuid로 study 목록 반환 */
-    public List<?> toolsFindByPatientId(String name, Level level, String uuid) throws JsonProcessingException {
-        Map<String, Object> query = Map.of("PatientName", name);
-        List<String> List = orthancService.toolsFindByParentPatient(level.getValue(), query, uuid);
-
-        return fetchDetails(List, Level.Study);
     }
 
     /**
@@ -169,10 +164,19 @@ public class DashBoardService {
                 studyCard.setStudyDate(studyDate);
                 studyCard.setStudyTime(studyTime);
                 studyCard.setStudyDescription(studyDescription);
-                studyCard.setThumbnailImage(
-                        orthancService.getThumbnailImageAsBase64(
-                                uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid)
-                        ));
+                String latestInstanceUuid = uuidMappingMapper.getLatestInstanceUuidByStudyUuid(studyUuid);
+                String thumbnailBase64 = "";
+                if (latestInstanceUuid != null && !latestInstanceUuid.isEmpty()) {
+                    try {
+                        thumbnailBase64 = orthancService.getThumbnailImageAsBase64(latestInstanceUuid);
+                    } catch (HttpClientErrorException.NotFound e) {
+                        thumbnailBase64 = "";
+                    } catch (Exception e) {
+                        log.warn("Failed to get thumbnail for study {}: {}", studyUuid, e.getMessage());
+                        thumbnailBase64 = "";
+                    }
+                }
+                studyCard.setThumbnailImage(thumbnailBase64);
                 studyCard.setPatientName(patientName);
                 studyCard.setPatientSex(patientSex);
                 
