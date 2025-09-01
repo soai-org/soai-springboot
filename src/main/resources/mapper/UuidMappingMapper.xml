@@ -5,9 +5,9 @@
 <mapper namespace="com.team1.soai.mapper.UuidMappingMapper">
     
     <select id="getLatestInstanceUuidByStudyUuid" resultType="String">
-        SELECT COALESCE(latest_instance_uuid, '') as latest_instance_uuid
-        FROM PATIENT_LATEST_DATA
-        WHERE latest_study_uuid = #{studyUuid}
+        SELECT COALESCE(thumbnail_instance_uuid, '') as latest_instance_uuid
+        FROM THUMBNAIL_UUID
+        WHERE study_uuid = #{studyUuid}
     </select>
 
 </mapper>

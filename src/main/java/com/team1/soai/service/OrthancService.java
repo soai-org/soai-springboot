@@ -177,10 +177,16 @@ public class OrthancService {
 
     public byte[] getDicomFilByByte(String instanceUuid) throws Exception{
         String url = orthancEndpoint + "/instances/" + instanceUuid + "/file";
-        RestTemplate restTemplate = new RestTemplate();
-        byte[] dicomBytes = restTemplate.getForObject(url, byte[].class);
+        System.out.println(url);
 
-        return dicomBytes;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", getAuthHeader());
+        HttpEntity entity = new HttpEntity(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+
+        return response.getBody();
     }
 
     public String getThumbnailImageAsBase64(String instanceUuid) {
