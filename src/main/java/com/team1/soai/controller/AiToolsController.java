@@ -27,16 +27,46 @@ public class AiToolsController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
-            response.put("instanceUUID",instanceUuid);
+            response.put("instanceUUID", instanceUuid);
             response.put("segmentationImage", segmentationImage);
             return ResponseEntity.ok(response);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> error = new HashMap<>();
             error.put("status", "error");
             error.put("message", "세그멘테이션 이미지를 가져오는 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    @PostMapping("/segmentation-array")
+    public ResponseEntity<Map<String, Object>> getSegmentationMask(@RequestBody Map<String, String> request) {
+        String instanceUuid = request.get("instanceUUID");
+
+        if (instanceUuid == null || instanceUuid.isBlank()) {
+            Map<String, Object> errorResponse = Map.of(
+                    "status", "error",
+                    "message", "instanceUUID is required"
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            Map<String, Object> result = segmentationService.getSegmentationArray(instanceUuid);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", result.get("data")
+            ));
+        } catch (Exception e) {
+            // 로깅
+            e.printStackTrace();
+
+            Map<String, Object> errorResponse = Map.of(
+                    "status", "error",
+                    "message", "Segmentation processing failed",
+                    "details", e.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
@@ -64,9 +94,7 @@ public class AiToolsController {
                     "instanceUUID", instanceUuid,
                     "transcript", transcript
             );
-
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> error = Map.of(
