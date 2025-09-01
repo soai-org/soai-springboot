@@ -23,12 +23,11 @@ public class ViewerController {
     @Autowired
     private final ViewerService viewerService;
 
-    @PostMapping(
+    @GetMapping(
             value = "/dicomfile",
             produces = "application/dicom")
-    public ResponseEntity<byte[]> getDicomData(@RequestBody Map<String, String> request){
+    public ResponseEntity<byte[]> getDicomData(@RequestParam String instanceUuid){
         try {
-            String instanceUuid = request.get("instanceUuid");
             return ResponseEntity.ok(viewerService.getDicomData(instanceUuid));
         }
         catch (Exception e) {
