@@ -30,7 +30,9 @@ public class ViewerController {
             return ResponseEntity.ok(viewerService.getDicomData(InstanceUuid));
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[0]);
+            System.out.println(e.getMessage());
+            e.getStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new byte[0]);
         }
     }
 
