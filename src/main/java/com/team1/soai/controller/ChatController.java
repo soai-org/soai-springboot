@@ -40,11 +40,4 @@ public class ChatController {
                     .body("Chat Response 과정에서 오류가 발생했습니다.");
         }
     }
-
-    // 추가: 대화 기록을 조회하여 history.jsp로 전달
-    @GetMapping("/history")
-    public String showHistory(Model model) {
-        model.addAttribute("historyList", chatService.getChatHistory());
-        return "history";
-    }
 }
