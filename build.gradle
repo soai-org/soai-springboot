@@ -61,8 +61,9 @@ dependencies {
     // web-soket -> web-soket플러그인 설치 필요
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    //AOP
+    // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     tasks.named('test') {

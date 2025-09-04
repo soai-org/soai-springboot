@@ -26,6 +26,9 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/user/login").permitAll()
+                .antMatchers("/ws/**").permitAll()
+                .antMatchers("/api/websocket/**").permitAll()
+                .antMatchers("/test-nlp-websocket.html").permitAll()    // 사용하지 않는다면 삭제 필요
                 .anyRequest().authenticated().and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
