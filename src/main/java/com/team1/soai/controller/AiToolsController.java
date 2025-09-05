@@ -1,5 +1,6 @@
 package com.team1.soai.controller;
 
+import com.team1.soai.service.AppendicitisDiagnosisService;
 import org.springframework.http.HttpStatus;
 import com.team1.soai.service.CaptioningService;
 import com.team1.soai.service.SegmentationService;
