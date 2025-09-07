@@ -44,11 +44,27 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'     // 기본 테스트 프레임워크
     testImplementation 'org.springframework.security:spring-security-test'     // Security 관련 테스트
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'                // JUnit 런처
+    testCompileOnly 'org.projectlombok:lombok'        // 테스트에서도 Lombok 적용
+    testAnnotationProcessor 'org.projectlombok:lombok' //
 
     // ===== DICOM =====
     implementation 'org.dcm4che:dcm4che-core:5.25.0'                            // dcm4che core
     implementation 'org.dcm4che:dcm4che-net:5.25.0'                             // dcm4che DICOM-orthanc 네트워킹
     implementation 'org.dcm4che:dcm4che-imageio:5.25.0'                         // dcm4che png, jpg 이미지 처리
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'com.auth0:java-jwt:4.2.0'
+
+    // web-soket -> web-soket플러그인 설치 필요
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // AOP
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     tasks.named('test') {
         useJUnitPlatform()
