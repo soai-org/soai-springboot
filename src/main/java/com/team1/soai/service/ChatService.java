@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 public class ChatService {
-    @Value("${fastapi.url:http://localhost:8000}") // FASTAPI url 값을 읽어오기
+    @Value("${fastapi.url}") // FASTAPI url 값을 읽어오기
     private String fastApiUrl;
 
     private final RestTemplate restTemplate;

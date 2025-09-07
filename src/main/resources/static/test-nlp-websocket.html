@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot WebSocket 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .output {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spring Boot WebSocket 테스트</h1>
+    
+    <div class="container">
+        <h2>WebSocket 연결 상태</h2>
+        <div id="connectionStatus" class="status disconnected">연결되지 않음</div>
+        <button onclick="connectWebSocket()">WebSocket 연결</button>
+        <button onclick="disconnectWebSocket()" disabled id="disconnectBtn">연결 해제</button>
+        <button onclick="checkStatus()">상태 확인</button>
+    </div>
+
+    <div class="grid">
+        <div class="container">
+            <h2>LLM 채팅 테스트</h2>
+            <input type="text" id="llmPrompt" placeholder="LLM 프롬프트를 입력하세요" value="안녕하세요, 간단한 질문을 해주세요">
+            <button onclick="sendLLMMessage()">LLM 메시지 전송</button>
+            <div class="output" id="llmOutput"></div>
+        </div>
+
+        <div class="container">
+            <h2>이미지 진단 테스트</h2>
+            <textarea id="diagnosisData" placeholder="진단 데이터를 입력하세요" rows="3">{"image": "base64_data", "patient_info": "테스트 환자"}</textarea>
+            <button onclick="sendDiagnosisMessage()">진단 메시지 전송</button>
+            <div class="output" id="diagnosisOutput"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>NLP 캡션 생성 테스트</h2>
+        <textarea id="nlpData" placeholder="NLP 데이터를 입력하세요 (텐서 + 메타 프롬프트)" rows="4">{"image_tensor": [[[[0.1, 0.2, 0.3]]]], "meta_prompt": "이 이미지를 설명해주세요"}</textarea>
+        <button onclick="sendNLPMessage()">NLP 메시지 전송</button>
+        <div class="output" id="nlpOutput"></div>
+    </div>
+
+    <div class="container">
+        <h2>API 테스트</h2>
+        <button onclick="testAPI()">API 상태 확인</button>
+        <button onclick="getConnections()">연결 목록 조회</button>
+        <div class="output" id="apiOutput"></div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let isConnected = false;
+
+        function connectWebSocket() {
+            if (websocket && websocket.readyState === WebSocket. OPEN) {
+                alert('이미 연결되어 있습니다.');
+                return;
+            }
+
+            // Spring Boot WebSocket 엔드포인트에 연결
+            websocket = new WebSocket('ws://localhost:8080/ws-relay');
+            
+            websocket.onopen = function(event) {
+                console.log('WebSocket 연결됨');
+                isConnected = true;
+                updateConnectionStatus();
+                document.getElementById('disconnectBtn').disabled = false;
+            };
+            
+            websocket.onmessage = function(event) {
+                console.log('메시지 수신:', event.data);
+                handleIncomingMessage(event.data);
+            };
+            
+            websocket.onclose = function(event) {
+                console.log('WebSocket 연결 종료');
+                isConnected = false;
+                updateConnectionStatus();
+                document.getElementById('disconnectBtn').disabled = true;
+            };
+            
+            websocket.onerror = function(error) {
+                console.error('WebSocket 오류:', error);
+                alert('WebSocket 연결 오류가 발생했습니다.');
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (websocket) {
+                websocket.close();
+                websocket = null;
+            }
+        }
+
+        function updateConnectionStatus() {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (isConnected) {
+                statusDiv.textContent = '연결됨';
+                statusDiv.className = 'status connected';
+            } else {
+                statusDiv.textContent = '연결되지 않음';
+                statusDiv.className = 'status disconnected';
+            }
+        }
+
+        function sendLLMMessage() {
+            if (!isConnected) {
+                alert('WebSocket에 연결되어 있지 않습니다.');
+                return;
+            }
+            
+            const prompt = document.getElementById('llmPrompt').value;
+            const message = 'LLM:' + prompt;
+            websocket.send(message);
+            
+            document.getElementById('llmOutput').textContent += `전송: ${prompt}\n`;
+        }
+
+        function sendDiagnosisMessage() {
+            if (!isConnected) {
+                alert('WebSocket에 연결되어 있지 않습니다.');
+                return;
+            }
+            
+            const data = document.getElementById('diagnosisData').value;
+            const message = 'DIAGNOSIS:' + data;
+            websocket.send(message);
+            
+            document.getElementById('diagnosisOutput').textContent += `전송: ${data}\n`;
+        }
+
+        function sendNLPMessage() {
+            if (!isConnected) {
+                alert('WebSocket에 연결되어 있지 않습니다.');
+                return;
+            }
+            
+            const data = document.getElementById('nlpData').value;
+            const message = 'NLP:' + data;
+            websocket.send(message);
+            
+            document.getElementById('nlpOutput').textContent += `전송: ${data}\n`;
+        }
+
+        function handleIncomingMessage(data) {
+            // 메시지 타입에 따라 적절한 출력 영역에 표시
+            if (data.includes('__error__')) {
+                // 오류 메시지
+                document.getElementById('apiOutput').textContent += `오류: ${data}\n`;
+            } else if (data.includes('캡션') || data.includes('NLP')) {
+                // NLP 응답
+                document.getElementById('nlpOutput').textContent += `수신: ${data}\n`;
+            } else if (data.includes('진단') || data.includes('diagnosis')) {
+                // 진단 응답
+                document.getElementById('diagnosisOutput').textContent += `수신: ${data}\n`;
+            } else {
+                // LLM 응답
+                document.getElementById('llmOutput').textContent += `수신: ${data}\n`;
+            }
+        }
+
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/websocket/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: 'TEST',
+                        message: 'WebSocket 테스트 메시지'
+                    })
+                });
+                
+                const result = await response.json();
+                document.getElementById('apiOutput').textContent += `API 테스트 결과: ${JSON.stringify(result, null, 2)}\n`;
+            } catch (error) {
+                document.getElementById('apiOutput').textContent += `API 테스트 오류: ${error.message}\n`;
+            }
+        }
+
+        async function getConnections() {
+            try {
+                const response = await fetch('/api/websocket/connections');
+                const result = await response.json();
+                document.getElementById('apiOutput').textContent += `연결 목록: ${JSON.stringify(result, null, 2)}\n`;
+            } catch (error) {
+                document.getElementById('apiOutput').textContent += `연결 목록 조회 오류: ${error.message}\n`;
+            }
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/websocket/status');
+                const result = await response.json();
+                document.getElementById('apiOutput').textContent += `상태 확인: ${JSON.stringify(result, null, 2)}\n`;
+            } catch (error) {
+                document.getElementById('apiOutput').textContent += `상태 확인 오류: ${error.message}\n`;
+            }
+        }
+
+        // 페이지 종료 시 WebSocket 연결 해제
+        window.onbeforeunload = function() {
+            if (websocket) {
+                websocket.close();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -17,10 +17,11 @@ public class UserManagementService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public List<UserSelectListDTO> getUsersForManagement(int offset, int limit, String order, Boolean isASC) {
-        List<UserDTO> userDTOList = userService.selectUserList(offset, limit, order, isASC);
 
         String finalOrder = (order == null || order.isEmpty()) ? "userId" : order;
         boolean finalIsASC = (isASC == null) ? false : isASC;
+
+        List<UserDTO> userDTOList = userService.selectUserList(offset, limit, finalOrder, finalIsASC);
 
         return userDTOList.stream()
                 .map(user -> new UserSelectListDTO(user.getUserId(), user.getUserName(), user.getUserRole()))
