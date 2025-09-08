@@ -1,13 +1,12 @@
 package com.team1.soai.dto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppendicitisResponse {
-    @JsonProperty()
-    private Map<String, Object> AppendicitisDescription;
+    private float appendcitis_probability;
+    private Map<String, Float> concept_scores;
+    private int num_views;
 }

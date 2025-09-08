@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class AppendicitisRequest {
-    @JsonProperty("AppendicitisUuidList")  // FastAPI가 기대하는 필드명
+    @JsonProperty("appendicitisUuidList")  // FastAPI가 기대하는 필드명
     private List<String> appendicitisUuidList;
 }
 
