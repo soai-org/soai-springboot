@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UuidMappingMapper {
-    
+
     /**
      * study_uuid로 해당 study의 latest_instance_uuid를 조회
      * @param studyUuid study UUID
