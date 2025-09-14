@@ -31,7 +31,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         // 1️⃣ 테스트용 WebSocket 핸들러 (/ws)
         registry.addHandler(new SimpleTestWebSocketHandler(), "/ws")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("*")
+                .addInterceptors();
         
         // 2️⃣ LLM 스트리밍용 WebSocket 핸들러 (/ws-llm)
         registry.addHandler(new LlmStreamingWebSocketHandler(), "/ws-llm")
@@ -44,6 +45,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
     // 1️⃣ 테스트용 WebSocket 핸들러
     // ===========================
     private class SimpleTestWebSocketHandler extends TextWebSocketHandler {
+        @Override
+        public boolean supportsPartialMessages() {
+            return true;
+        }
         
         @Override
         public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -124,14 +129,18 @@ public class WebSocketConfig implements WebSocketConfigurer {
     // 2️⃣ LLM 스트리밍용 WebSocket 핸들러
     // ===========================
     private class LlmStreamingWebSocketHandler extends TextWebSocketHandler {
-        
+        @Override
+        public boolean supportsPartialMessages() {
+            return true;
+        }
+
         @Override
         public void afterConnectionEstablished(WebSocketSession session) throws Exception {
             log.info("✅ LLM 스트리밍 WebSocket 연결 성공: {} from {}", session.getId(), session.getRemoteAddress());
             
             // 연결 성공 메시지 전송
+            session.setTextMessageSizeLimit(4);
             session.sendMessage(new TextMessage("🚀 LLM 스트리밍 WebSocket 연결 성공!"));
-            session.sendMessage(new TextMessage("💡 이 엔드포인트는 향후 확장을 위해 준비되었습니다."));
         }
         
         @Override

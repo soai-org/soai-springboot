@@ -31,14 +31,6 @@ public class FastApiWebSocketController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // JWT 토큰 검증 (테스트용으로 비활성화)
-            // String token = authHeader.replace("Bearer ", "");
-            // if (!jwtService.validateToken(token)) {
-            //     response.put("success", false);
-            //     response.put("message", "Invalid JWT token");
-            //     return ResponseEntity.status(401).body(response);
-            // }
-            
             String clientId = request.get("clientId");
             String prompt = request.get("prompt");
             
